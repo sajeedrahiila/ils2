@@ -1,0 +1,13 @@
+{
+  "login": "Login",
+  "register": "Register",
+  "reset": "Reset Password",
+  "email": "Email",
+  "password": "Password",
+  "name": "Name",
+  "signIn": "Sign In",
+  "alreadyAccount": "Already have an account?",
+  "backToLogin": "Back to Login",
+  "sendResetLink": "Send Reset Link",
+  "dashboard": "Dashboard"
+}

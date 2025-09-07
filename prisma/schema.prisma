@@ -1,0 +1,135 @@
+// Prisma schema for Islamic education & community platform
+// Database: PostgreSQL
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  messages  Message[]
+  feedbacks Feedback[]
+  userChats UserChat[]
+  callParticipants CallParticipant[]
+  media     Media[]   @relation("UploadedMedia")
+}
+
+enum Role {
+  student
+  teacher
+  moderator
+  admin
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    String
+  mediaUrl  String?
+  createdAt DateTime @default(now())
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  name      String
+  type      ChatType
+  userChats UserChat[]
+  messages  Message[]
+}
+
+enum ChatType {
+  private
+  group
+  ownerBox
+}
+
+model Call {
+  id           String   @id @default(uuid())
+  type         CallType
+  callParticipants CallParticipant[]
+}
+
+enum CallType {
+  audio
+  video
+  screen
+}
+// Join table for User <-> Chat (many-to-many)
+model UserChat {
+  id      String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  chat   Chat   @relation(fields: [chatId], references: [id])
+  chatId String
+}
+// Join table for User <-> Call (many-to-many)
+model CallParticipant {
+  id      String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  call   Call   @relation(fields: [callId], references: [id])
+  callId String
+}
+
+model Media {
+  id           String   @id @default(uuid())
+  title        String
+  type         MediaType
+  url          String
+  tags         String[]
+  approved     Boolean  @default(false)
+  uploadedBy   User     @relation("UploadedMedia", fields: [uploadedById], references: [id])
+  uploadedById String
+}
+
+enum MediaType {
+  ebook
+  audio
+  lecture
+}
+
+model CatalogItem {
+  id            String   @id @default(uuid())
+  name          String
+  category      String
+  price         Float
+  halalCertified Boolean @default(false)
+  description   String
+  stock         Int
+}
+
+model LibraryEntry {
+  id        String   @id @default(uuid())
+  type      LibraryType
+  title     String
+  author    String
+  language  String
+  fileUrl   String
+}
+
+enum LibraryType {
+  quran
+  tafsir
+  hadith
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  content   String
+  rating    Int
+  createdAt DateTime @default(now())
+}
